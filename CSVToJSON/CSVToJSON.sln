@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31410.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVToJSON", "CSVToJSON.csproj", "{750C4067-8D0C-417D-A4DA-1E1C8D2608F5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{750C4067-8D0C-417D-A4DA-1E1C8D2608F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{750C4067-8D0C-417D-A4DA-1E1C8D2608F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{750C4067-8D0C-417D-A4DA-1E1C8D2608F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{750C4067-8D0C-417D-A4DA-1E1C8D2608F5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B5EE6D2E-476E-4664-B317-21881DE9AA13}
+	EndGlobalSection
+EndGlobal
