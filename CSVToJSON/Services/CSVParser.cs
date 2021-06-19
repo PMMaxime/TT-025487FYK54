@@ -1,8 +1,11 @@
 ﻿using _Tests_CSVToJSON.Utils.Interfaces;
 using CSVToJSON.Services.Interfaces;
+using CSVToJSON.Services.Models;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CSVToJSON.Services
 {
@@ -20,44 +23,51 @@ namespace CSVToJSON.Services
             _fileUtils = fileUtils;
         }
 
-        public IEnumerable<IEnumerable<string>> ParseCsvFile(string filePath)
+        public IEnumerable<IEnumerable<CSVBaseValue>> ParseCsvFile(string filePath, char separator = SEPARATOR_CHAR)
         {
             var fileText = _fileUtils.ReadAllText(filePath);
-            var parsedFile = parseRowsFromFileText(fileText);
+            var parsedFile = parseRowsFromFileText(fileText, separator);
             return parsedFile;
         }
 
-        private IEnumerable<IEnumerable<string>> parseRowsFromFileText(string fileText, char separator = SEPARATOR_CHAR)
+        private IEnumerable<IEnumerable<CSVBaseValue>> parseRowsFromFileText(string fileText, char separator)
         {
-            var rows = new List<List<string>>();
-            var values = new List<string>();
+            var rows = new List<List<CSVBaseValue>>();
+            var values = new List<CSVBaseValue>();
             var value = string.Empty;
 
             for (int i = 0; i < fileText.Length; i++)
             {
                 if (fileText[i] == separator)
                 {
-                    values.Add(cleanValue(value));
+                    values.Add(TryCastValue(cleanValue(value)));
                     value = string.Empty;
                     continue;
                 }
                 if (LINEJUMP_CHARS.Any(linejump => value.Contains(linejump)))
                 {
-                    values.Add(cleanValue(value));
+                    values.Add(TryCastValue(cleanValue(value)));
                     value = string.Empty;
-                    rows.Add(new List<string>(values));
+                    rows.Add(new List<CSVBaseValue>(values));
                     values.Clear();
                     continue;
                 }
 
                 value += fileText[i];
             }
-            values.Add(value);
-            rows.Add(new List<string>(values));
+            values.Add(TryCastValue(cleanValue(value)));
+            rows.Add(new List<CSVBaseValue>(values));
 
             return rows;
         }
 
+        private CSVBaseValue TryCastValue(string value)
+        {
+            if (int.TryParse(value, out int castedValue))
+                return new CSVIntValue(castedValue);
+
+            else return new CSVStringValue(value);
+        }
 
         private string cleanValue(string value)
         {
