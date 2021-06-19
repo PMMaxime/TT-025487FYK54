@@ -1,4 +1,6 @@
-﻿using CSVToJSON.Services;
+﻿using _Tests_CSVToJSON.Utils;
+using _Tests_CSVToJSON.Utils.Interfaces;
+using CSVToJSON.Services;
 using CSVToJSON.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +31,7 @@ namespace CSVToJSON
                 .ConfigureServices((_, services) => services
                 .AddLogging(conf => conf.AddConsole().SetMinimumLevel(LogLevel.Debug))
                 .AddSingleton<Program>()
+                .AddTransient<IFileUtils, FileUtils>()
                 .AddSingleton<ICSVParser, CSVParser>());
         }
     }
