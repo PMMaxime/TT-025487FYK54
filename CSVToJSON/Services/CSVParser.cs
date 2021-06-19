@@ -16,6 +16,7 @@ namespace CSVToJSON.Services
 
         private List<string> LINEJUMP_CHARS = new List<string>(3) { "\r\n", "\n", "\r" };
         private const char SEPARATOR_CHAR = ',';
+        private const char QUOTATION_CHAR = '\"';
 
         public CSVParser(ILogger<CSVParser> logger, IFileUtils fileUtils)
         {
@@ -35,25 +36,30 @@ namespace CSVToJSON.Services
             var rows = new List<List<CSVBaseValue>>();
             var values = new List<CSVBaseValue>();
             var value = string.Empty;
+            var valueIsQuotation = false;
 
             for (int i = 0; i < fileText.Length; i++)
             {
-                if (fileText[i] == separator)
+                if (!valueIsQuotation)
                 {
-                    values.Add(TryCastValue(cleanValue(value)));
-                    value = string.Empty;
-                    continue;
+                    if (fileText[i] == separator)
+                    {
+                        values.Add(TryCastValue(cleanValue(value)));
+                        value = string.Empty;
+                        valueIsQuotation = false;
+                        continue;
+                    }
+                    if (LINEJUMP_CHARS.Any(linejump => value.Contains(linejump)))
+                    {
+                        values.Add(TryCastValue(cleanValue(value)));
+                        value = string.Empty;
+                        rows.Add(new List<CSVBaseValue>(values));
+                        values.Clear();
+                        continue;
+                    }
                 }
-                if (LINEJUMP_CHARS.Any(linejump => value.Contains(linejump)))
-                {
-                    values.Add(TryCastValue(cleanValue(value)));
-                    value = string.Empty;
-                    rows.Add(new List<CSVBaseValue>(values));
-                    values.Clear();
-                    continue;
-                }
-
                 value += fileText[i];
+                valueIsQuotation = fileText[i] == QUOTATION_CHAR ? !valueIsQuotation : valueIsQuotation;
             }
             values.Add(TryCastValue(cleanValue(value)));
             rows.Add(new List<CSVBaseValue>(values));
@@ -72,6 +78,7 @@ namespace CSVToJSON.Services
         private string cleanValue(string value)
         {
             LINEJUMP_CHARS.ForEach(linejump => value = value.Replace(linejump, string.Empty));
+            value = value.Replace(QUOTATION_CHAR.ToString(), string.Empty);
             return value;
         }
     }

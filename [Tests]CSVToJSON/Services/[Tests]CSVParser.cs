@@ -13,7 +13,7 @@ namespace _Tests_CSVToJSON
         private ILogger<CSVParser> mockedLogger = new Mock<ILogger<CSVParser>>().Object;
 
         [Fact]
-        public void ParseCsvFile_2_Rows_2_Cols_Only_Text_Values_No_Quotation()
+        public void ParseCsvFile_No_Typing_No_Quotation()
         {
             var csvContent =
 @"a,b,
@@ -34,7 +34,7 @@ e,f";
         }
 
         [Fact]
-        public void ParseCsvFile_2_Rows_2_Cols_Mixed_Typing_No_Quotation()
+        public void ParseCsvFile_Explicit_Typing_No_Quotation()
         {
             var csvContent =
 @"1,b,
@@ -59,6 +59,30 @@ e,2";
 
             Assert.Equal(2, result.ElementAt(1).ElementAt(1).CastedValue);
             Assert.IsType<CSVIntValue>(result.ElementAt(1).ElementAt(1));
+        }
+
+        [Fact]
+        public void ParseCsvFile_Mixed_Typing_1_Quotation()
+        {
+            var csvContent =
+@"1997,Ford,E350,""Super,
+luxurious truck""";
+
+            var fileUtils = new Mock<IFileUtils>();
+            fileUtils.Setup(c => c.ReadAllText("")).Returns(csvContent);
+
+            var csvParser = new CSVParser(mockedLogger, fileUtils.Object);
+
+            var result = csvParser.ParseCsvFile("");
+
+
+            Assert.Equal(1997, result.First().ElementAt(0).CastedValue);
+            Assert.Equal("Ford", result.First().ElementAt(1).CastedValue);
+            Assert.Equal("E350", result.First().ElementAt(2).CastedValue);
+            Assert.Equal("Super,luxurious truck", result.First().ElementAt(3).CastedValue);
+
+            Assert.Single(result);
+
         }
     }
 }
