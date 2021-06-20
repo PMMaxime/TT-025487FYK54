@@ -108,8 +108,9 @@ f,g,h,i";
 
             Assert.NotNull(receivedException);
             Assert.IsType<CSVParserException>(receivedException);
-            Assert.Equal(@"Invalid number of values at line 1 : 2 values found instead of 3 (top line being the reference). The CSV file might be inconsistent in its format.
-Invalid number of values at line 2 : 4 values found instead of 3 (top line being the reference). The CSV file might be inconsistent in its format.", receivedException.Message);
+            Assert.Equal(@"Invalid number of values at line 2 : 2 values found instead of 3 (top line being the reference). The CSV file might be inconsistent in its format.
+
+Invalid number of values at line 3 : 4 values found instead of 3 (top line being the reference). The CSV file might be inconsistent in its format.", receivedException.Message);
 
         }
     }

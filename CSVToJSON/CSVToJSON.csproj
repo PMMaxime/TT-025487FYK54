@@ -20,8 +20,4 @@
     <PackageReference Include="System.IO.Abstractions" Version="13.2.38" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Resources\Output\" />
-  </ItemGroup>
-
 </Project>

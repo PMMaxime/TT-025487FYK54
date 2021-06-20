@@ -1,6 +1,7 @@
 ﻿using CSVToJSON.Services.CSVParser.Interfaces;
 using CSVToJSON.Services.JSONWriter.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace CSVToJSON
 {
@@ -20,7 +21,10 @@ namespace CSVToJSON
         public void Run(string filePath, bool withHeaders)
         {
             var parsedCsvData = _csvParser.ParseCsvFile(filePath);
-            _jsonWriter.WriteCsvDataToJsonFile(parsedCsvData, "../../../Resources/Output/testfile.json", withHeaders);
+
+            var outputFilePath = filePath.Replace($"{Path.GetExtension(filePath)}", ".json");
+
+            _jsonWriter.WriteCsvDataToJsonFile(parsedCsvData, outputFilePath, withHeaders);
         }
     }
 }
