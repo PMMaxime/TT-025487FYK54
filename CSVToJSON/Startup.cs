@@ -1,7 +1,9 @@
-﻿using _Tests_CSVToJSON.Utils;
-using _Tests_CSVToJSON.Utils.Interfaces;
-using CSVToJSON.Services;
-using CSVToJSON.Services.Interfaces;
+﻿using CSVToJSON.Services.CSVParser;
+using CSVToJSON.Services.CSVParser.Interfaces;
+using CSVToJSON.Services.JSONWriter;
+using CSVToJSON.Services.JSONWriter.Interfaces;
+using CSVToJSON.Utils;
+using CSVToJSON.Utils.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,9 +11,9 @@ using Microsoft.Extensions.Logging;
 
 namespace CSVToJSON
 {
-    internal class Startup
+    public class Startup
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             using IHost host = ConfigureServices(args).Build();
             host.Services.GetRequiredService<Program>().Run();
@@ -32,7 +34,8 @@ namespace CSVToJSON
                 .AddLogging(conf => conf.AddConsole().SetMinimumLevel(LogLevel.Debug))
                 .AddSingleton<Program>()
                 .AddTransient<IFileUtils, FileUtils>()
-                .AddSingleton<ICSVParser, CSVParser>());
+                .AddSingleton<ICSVParser, CSVParser>()
+                .AddSingleton<IJSONWriter, JSONWriter>());
         }
     }
 }

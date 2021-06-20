@@ -1,4 +1,4 @@
-﻿namespace _Tests_CSVToJSON.Utils.Interfaces
+﻿namespace CSVToJSON.Utils.Interfaces
 {
     public interface IFileUtils
     {

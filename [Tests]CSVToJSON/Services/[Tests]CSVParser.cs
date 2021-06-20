@@ -1,8 +1,10 @@
-using _Tests_CSVToJSON.Utils.Interfaces;
-using CSVToJSON.Services;
-using CSVToJSON.Services.Models;
+using CSVToJSON.Services.CSVParser;
+using CSVToJSON.Services.CSVParser.Exceptions;
+using CSVToJSON.Services.CSVParser.Models;
+using CSVToJSON.Utils.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -16,7 +18,7 @@ namespace _Tests_CSVToJSON
         public void ParseCsvFile_No_Typing_No_Quotation()
         {
             var csvContent =
-@"a,b,
+@"a,b
 e,f";
             var fileUtils = new Mock<IFileUtils>();
             fileUtils.Setup(c => c.ReadAllText("")).Returns(csvContent);
@@ -37,7 +39,7 @@ e,f";
         public void ParseCsvFile_Explicit_Typing_No_Quotation()
         {
             var csvContent =
-@"1,b,
+@"1,b
 e,2";
             var fileUtils = new Mock<IFileUtils>();
             fileUtils.Setup(c => c.ReadAllText("")).Returns(csvContent);
@@ -80,21 +82,35 @@ luxurious truck""";
         }
 
         [Fact]
-        public void ParseCsvFile_Mixed_Typing_1_Quotation_With_Quotes()
+        public void ParseCsvFile_Inconsistent_column_count()
         {
             var csvContent =
-@"1997,Ford,E350,""""Super,
-luxurious truck""""";
+@"a,b,c
+d,e
+f,g,h,i";
 
             var fileUtils = new Mock<IFileUtils>();
             fileUtils.Setup(c => c.ReadAllText("")).Returns(csvContent);
 
             var csvParser = new CSVParser(mockedLogger, fileUtils.Object);
 
-            var result = csvParser.ParseCsvFile("");
+            Exception receivedException = null;
 
-            Assert.Single(result);
-            Assert.Equal("\"Super,luxurious truck\"", result.First().ElementAt(3).CastedValue);
+            try
+            {
+                var result = csvParser.ParseCsvFile("");
+
+            }
+            catch (Exception e)
+            {
+                receivedException = e;
+            }
+
+            Assert.NotNull(receivedException);
+            Assert.IsType<CSVParserException>(receivedException);
+            Assert.Equal(@"Invalid number of values at line 1 : 2 values found instead of 3 (top line being the reference). The CSV file might be inconsistent in its format.
+Invalid number of values at line 2 : 4 values found instead of 3 (top line being the reference). The CSV file might be inconsistent in its format.", receivedException.Message);
+
         }
     }
 }

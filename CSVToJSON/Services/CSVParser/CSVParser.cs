@@ -1,12 +1,14 @@
-﻿using _Tests_CSVToJSON.Utils.Interfaces;
-using CSVToJSON.Services.Interfaces;
-using CSVToJSON.Services.Models;
+﻿using CSVToJSON.Services.CSVParser.Exceptions;
+using CSVToJSON.Services.CSVParser.Interfaces;
+using CSVToJSON.Services.CSVParser.Models;
+using CSVToJSON.Utils.Interfaces;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace CSVToJSON.Services
+namespace CSVToJSON.Services.CSVParser
 {
     public class CSVParser : ICSVParser
     {
@@ -27,12 +29,13 @@ namespace CSVToJSON.Services
         public IEnumerable<IEnumerable<CSVBaseValue>> ParseCsvFile(string filePath, char separator = SEPARATOR_CHAR)
         {
             var fileText = _fileUtils.ReadAllText(filePath);
-            return parseRowsFromFileText(fileText, separator);
+            var parsedCsvFile = parseRowsFromFileText(fileText, separator);
+            validateParsedCsvFile(parsedCsvFile);
+            return parsedCsvFile;
         }
 
         private IEnumerable<IEnumerable<CSVBaseValue>> parseRowsFromFileText(string fileText, char separator)
         {
-
             var rows = new List<List<CSVBaseValue>>();
             var values = new List<CSVBaseValue>();
             var value = string.Empty;
@@ -67,6 +70,25 @@ namespace CSVToJSON.Services
             rows.Add(new List<CSVBaseValue>(values));
 
             return rows;
+        }
+
+        private void validateParsedCsvFile(IEnumerable<IEnumerable<CSVBaseValue>> rows)
+        {
+            var referenceColNb = rows.ElementAt(0).Count();
+            var errors = new List<string>();
+            var rowCount = 0;
+            foreach (var row in rows)
+            {
+                if (row.Count() != referenceColNb)
+                {
+                    var errorMsg = $"Invalid number of values at line {rowCount} : {row.Count()} values found instead of {referenceColNb} (top line being the reference). The CSV file might be inconsistent in its format.";
+                    errors.Add(errorMsg);
+                    _logger.LogError(errorMsg);
+                }
+                rowCount++;
+            }
+
+            if (errors.Any()) throw new CSVParserException(String.Join("\r\n", errors));
         }
 
         private CSVBaseValue TryCastValue(string value)

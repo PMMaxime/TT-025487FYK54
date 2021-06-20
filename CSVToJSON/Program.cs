@@ -1,4 +1,4 @@
-﻿using CSVToJSON.Services.Interfaces;
+﻿using CSVToJSON.Services.CSVParser.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace CSVToJSON

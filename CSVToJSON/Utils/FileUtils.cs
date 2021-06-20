@@ -1,8 +1,8 @@
-﻿using _Tests_CSVToJSON.Utils.Interfaces;
+﻿using CSVToJSON.Utils.Interfaces;
 using System.IO;
 
 
-namespace _Tests_CSVToJSON.Utils
+namespace CSVToJSON.Utils
 {
     public class FileUtils : IFileUtils
     {

@@ -1,4 +1,4 @@
-﻿namespace CSVToJSON.Services.Models
+﻿namespace CSVToJSON.Services.CSVParser.Models
 {
     public abstract class CSVBaseValue
     {

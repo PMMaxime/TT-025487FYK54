@@ -1,7 +1,7 @@
-﻿using CSVToJSON.Services.Models;
+﻿using CSVToJSON.Services.CSVParser.Models;
 using System.Collections.Generic;
 
-namespace CSVToJSON.Services.Interfaces
+namespace CSVToJSON.Services.CSVParser.Interfaces
 {
     public interface ICSVParser
     {
