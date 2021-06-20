@@ -11,12 +11,13 @@ namespace CSVToJSON.Services
 {
     public class CSVParser : ICSVParser
     {
-        public readonly IFileUtils _fileUtils;
-        public readonly ILogger<CSVParser> _logger;
+        private readonly IFileUtils _fileUtils;
+        private readonly ILogger<CSVParser> _logger;
 
         private List<string> LINEJUMP_CHARS = new List<string>(3) { "\r\n", "\n", "\r" };
         private const char SEPARATOR_CHAR = ',';
         private const char QUOTATION_CHAR = '\"';
+        Regex matchUnnecessaryQuotes = new Regex(@"[\""]{1}(?![\""])");
 
         public CSVParser(ILogger<CSVParser> logger, IFileUtils fileUtils)
         {
@@ -33,6 +34,7 @@ namespace CSVToJSON.Services
 
         private IEnumerable<IEnumerable<CSVBaseValue>> parseRowsFromFileText(string fileText, char separator)
         {
+
             var rows = new List<List<CSVBaseValue>>();
             var values = new List<CSVBaseValue>();
             var value = string.Empty;
@@ -40,9 +42,11 @@ namespace CSVToJSON.Services
 
             for (int i = 0; i < fileText.Length; i++)
             {
+                var currentChar = fileText[i];
+                var nextChar = fileText[i + 1 >= fileText.Length ? fileText.Length - 1 : i + 1];
                 if (!valueIsQuotation)
                 {
-                    if (fileText[i] == separator)
+                    if (currentChar == separator)
                     {
                         values.Add(TryCastValue(cleanValue(value)));
                         value = string.Empty;
@@ -58,8 +62,8 @@ namespace CSVToJSON.Services
                         continue;
                     }
                 }
-                value += fileText[i];
-                valueIsQuotation = fileText[i] == QUOTATION_CHAR ? !valueIsQuotation : valueIsQuotation;
+                value += currentChar;
+                valueIsQuotation = currentChar == QUOTATION_CHAR && nextChar != QUOTATION_CHAR ? !valueIsQuotation : valueIsQuotation;
             }
             values.Add(TryCastValue(cleanValue(value)));
             rows.Add(new List<CSVBaseValue>(values));
@@ -78,7 +82,7 @@ namespace CSVToJSON.Services
         private string cleanValue(string value)
         {
             LINEJUMP_CHARS.ForEach(linejump => value = value.Replace(linejump, string.Empty));
-            value = value.Replace(QUOTATION_CHAR.ToString(), string.Empty);
+            value = matchUnnecessaryQuotes.Replace(value, string.Empty);
             return value;
         }
     }

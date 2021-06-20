@@ -75,14 +75,26 @@ luxurious truck""";
 
             var result = csvParser.ParseCsvFile("");
 
-
-            Assert.Equal(1997, result.First().ElementAt(0).CastedValue);
-            Assert.Equal("Ford", result.First().ElementAt(1).CastedValue);
-            Assert.Equal("E350", result.First().ElementAt(2).CastedValue);
+            Assert.Single(result);
             Assert.Equal("Super,luxurious truck", result.First().ElementAt(3).CastedValue);
+        }
+
+        [Fact]
+        public void ParseCsvFile_Mixed_Typing_1_Quotation_With_Quotes()
+        {
+            var csvContent =
+@"1997,Ford,E350,""""Super,
+luxurious truck""""";
+
+            var fileUtils = new Mock<IFileUtils>();
+            fileUtils.Setup(c => c.ReadAllText("")).Returns(csvContent);
+
+            var csvParser = new CSVParser(mockedLogger, fileUtils.Object);
+
+            var result = csvParser.ParseCsvFile("");
 
             Assert.Single(result);
-
+            Assert.Equal("\"Super,luxurious truck\"", result.First().ElementAt(3).CastedValue);
         }
     }
 }
