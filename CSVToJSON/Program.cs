@@ -17,9 +17,9 @@ namespace CSVToJSON
             _jsonWriter = jsonWriter;
         }
 
-        public void Run(bool withHeaders)
+        public void Run(string filePath, bool withHeaders)
         {
-            var parsedCsvData = _csvParser.ParseCsvFile("../../../Resources/Input/testfile.csv");
+            var parsedCsvData = _csvParser.ParseCsvFile(filePath);
             _jsonWriter.WriteCsvDataToJsonFile(parsedCsvData, "../../../Resources/Output/testfile.json", withHeaders);
         }
     }

@@ -15,22 +15,16 @@ namespace CSVToJSON
 {
     public class Startup
     {
-        public class Options
-        {
-            [Option('h', "headers", Required = false, HelpText = "Are headers present in the csv input file ?")]
-            public bool Headers { get; set; }
-        }
         public static void Main(string[] args)
         {
-            bool withHeaders = false;
-            Parser.Default.ParseArguments<Options>(args).WithParsed(opts => withHeaders = opts.Headers);
-
-            using IHost host = ConfigureServices(args).Build();
+            using IHost host = configureServices(args).Build();
             var logger = host.Services.GetRequiredService<ILogger<Startup>>();
+
             try
             {
+                parseArgs(args, out string filePath, out bool withHeaders);
                 logger.LogInformation($"--------------------------------------{Environment.NewLine} ... Process started ... {Environment.NewLine}--------------------------------------");
-                host.Services.GetRequiredService<Program>().Run(withHeaders);
+                host.Services.GetRequiredService<Program>().Run(filePath, withHeaders);
                 logger.LogInformation($"-------------------{Environment.NewLine} ... Process ended without errors... {Environment.NewLine}-------------------");
 
             }
@@ -42,7 +36,27 @@ namespace CSVToJSON
             Console.ReadLine();
         }
 
-        private static IHostBuilder ConfigureServices(string[] args)
+
+        private static void parseArgs(string[] args, out string filePath, out bool withHeaders)
+        {
+            string _filePath = null;
+            bool? _withHeaders = null;
+
+            Parser.Default.ParseArguments<CmdLineArgs>(args).WithParsed(opts =>
+            {
+                _withHeaders = opts.Headers;
+                _filePath = opts.FilePath;
+            });
+
+            if (string.IsNullOrEmpty(_filePath))
+                throw new ArgumentNullException("The file path (-f) MUST be passed as an argument when executing this process.");
+
+            filePath = _filePath;
+            withHeaders = _withHeaders.HasValue ? _withHeaders.Value : false;
+
+        }
+
+        private static IHostBuilder configureServices(string[] args)
         {
             return
                 Host.CreateDefaultBuilder(args)
