@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace CSVToJSON
 {
@@ -16,7 +17,18 @@ namespace CSVToJSON
         public static void Main(string[] args)
         {
             using IHost host = ConfigureServices(args).Build();
-            host.Services.GetRequiredService<Program>().Run();
+            var logger = host.Services.GetRequiredService<ILogger<Startup>>();
+            try
+            {
+                logger.LogInformation($"--------------------------------------{Environment.NewLine} ... Process started ... {Environment.NewLine}--------------------------------------");
+                host.Services.GetRequiredService<Program>().Run();
+                logger.LogInformation($"-------------------{Environment.NewLine} ... Process ended without errors... {Environment.NewLine}-------------------");
+
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"--------------------------------------{Environment.NewLine} Process ended unexpectedly for the following reason :{Environment.NewLine} {e.Message} {Environment.NewLine} --------------------------------------");
+            }
         }
 
         private static IHostBuilder ConfigureServices(string[] args)

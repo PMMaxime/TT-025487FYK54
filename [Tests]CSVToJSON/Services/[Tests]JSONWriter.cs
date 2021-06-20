@@ -1,5 +1,4 @@
-﻿using CSVToJSON.Services.CSVParser;
-using CSVToJSON.Services.CSVParser.Interfaces;
+﻿using CSVToJSON.Services.CSVParser.Interfaces;
 using CSVToJSON.Services.CSVParser.Models;
 using CSVToJSON.Services.JSONWriter;
 using Microsoft.Extensions.Logging;
@@ -12,7 +11,6 @@ namespace _Tests_CSVToJSON
 {
     public class _Tests_JSONWriter
     {
-        private ILogger<CSVParser> mockedCSVParserLogger = new Mock<ILogger<CSVParser>>().Object;
         private ILogger<JSONWriter> mockedJsonWriterLogger = new Mock<ILogger<JSONWriter>>().Object;
 
         [Fact]

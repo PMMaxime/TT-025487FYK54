@@ -1,4 +1,5 @@
 ﻿using CSVToJSON.Services.CSVParser.Interfaces;
+using CSVToJSON.Services.JSONWriter.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace CSVToJSON
@@ -7,16 +8,22 @@ namespace CSVToJSON
     {
         private readonly ILogger<Program> _logger;
         private readonly ICSVParser _csvParser;
+        private readonly IJSONWriter _jsonWriter;
 
-        public Program(ILogger<Program> logger, ICSVParser csvParser)
+        public Program(ILogger<Program> logger, ICSVParser csvParser, IJSONWriter jsonWriter)
         {
             _logger = logger;
             _csvParser = csvParser;
+            _jsonWriter = jsonWriter;
         }
 
         public void Run()
         {
-            _logger.LogInformation("... Application Started ...");
+
+            var parsedCsvData = _csvParser.ParseCsvFile("../../../Resources/Input/testfile.csv");
+            _jsonWriter.WriteCsvDataToJsonFile(parsedCsvData, "../../../Resources/Output/testfile.json", true);
+
+
         }
     }
 }

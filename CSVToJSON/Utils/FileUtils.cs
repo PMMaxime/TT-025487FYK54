@@ -4,6 +4,9 @@ using System.IO;
 
 namespace CSVToJSON.Utils
 {
+    /// <summary>
+    /// This class is a basic abstraction for the native File class. It allows for more flexibility regarding testing and mocking, among other things.
+    /// </summary>
     public class FileUtils : IFileUtils
     {
 

@@ -5,6 +5,6 @@ namespace CSVToJSON.Services.CSVParser.Interfaces
 {
     public interface ICSVParser
     {
-        public IEnumerable<IEnumerable<CSVBaseValue>> ParseCsvFile(string filePath, char separator);
+        public IEnumerable<IEnumerable<CSVBaseValue>> ParseCsvFile(string filePath, char separator = ',');
     }
 }

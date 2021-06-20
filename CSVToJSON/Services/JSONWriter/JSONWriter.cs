@@ -18,9 +18,14 @@ namespace CSVToJSON.Services.JSONWriter
             _logger = logger;
         }
 
+        /// <summary>
+        /// Outputs parsed two dimensional IEnumerable data to a json object in a file.
+        /// </summary>
         public void WriteCsvDataToJsonFile(IEnumerable<IEnumerable<CSVBaseValue>> csvData, string filepath, bool withHeaders = false)
         {
             dynamic jsonData;
+
+            _logger.LogInformation($"Begin writing parsed data to json file at : {filepath} ...");
 
             if (withHeaders)
                 jsonData = GetStructuredJsonDataFromCsvData(csvData);
@@ -28,6 +33,8 @@ namespace CSVToJSON.Services.JSONWriter
                 jsonData = GetFlatJsonDataFromCsvData(csvData);
 
             File.WriteAllText(filepath, JsonConvert.SerializeObject(jsonData));
+
+            _logger.LogInformation($"{csvData.Count()} json elements Successfully written. ");
         }
 
         public IEnumerable<JObject> GetStructuredJsonDataFromCsvData(IEnumerable<IEnumerable<CSVBaseValue>> csvData)

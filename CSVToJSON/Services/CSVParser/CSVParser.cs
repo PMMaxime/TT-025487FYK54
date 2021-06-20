@@ -18,7 +18,8 @@ namespace CSVToJSON.Services.CSVParser
         private List<string> LINEJUMP_CHARS = new List<string>(3) { "\r\n", "\n", "\r" };
         private const char SEPARATOR_CHAR = ',';
         private const char QUOTATION_CHAR = '\"';
-        Regex matchUnnecessaryQuotes = new Regex(@"[\""]{1}(?![\""])");
+        private readonly Regex matchUnnecessaryQuotes = new Regex(@"[\""]{1}(?![\""])");
+        private readonly Regex matchUnquotedLinejumps = new Regex(@"((?!\""[\w\s]*[\""]*[\w\s]*)[\r\n|\r|\n](?![\w\s]*[\""]*[\w\s]*\""))");
 
         public CSVParser(ILogger<CSVParser> logger, IFileUtils fileUtils)
         {
@@ -26,14 +27,25 @@ namespace CSVToJSON.Services.CSVParser
             _fileUtils = fileUtils;
         }
 
+        /// <summary>
+        /// Gets a two dimensional list of parsed values from a csv file.
+        /// </summary>
         public IEnumerable<IEnumerable<CSVBaseValue>> ParseCsvFile(string filePath, char separator = SEPARATOR_CHAR)
         {
+            _logger.LogInformation($"Begin parsing file at : {filePath} ...");
+
             var fileText = _fileUtils.ReadAllText(filePath);
-            var parsedCsvFile = parseRowsFromFileText(fileText, separator);
-            validateParsedCsvFile(parsedCsvFile);
-            return parsedCsvFile;
+            var parsedCsvData = parseRowsFromFileText(fileText, separator);
+            validateParsedCsvFile(parsedCsvData);
+
+            _logger.LogInformation($"Successfully parsed {parsedCsvData.Count()} lines.");
+
+            return parsedCsvData;
         }
 
+        /// <summary>
+        /// Iterates overs the whole text content of a csv file and returns it's content as parsed rows and columns.
+        /// </summary>
         private IEnumerable<IEnumerable<CSVBaseValue>> parseRowsFromFileText(string fileText, char separator)
         {
             var rows = new List<List<CSVBaseValue>>();
@@ -45,6 +57,7 @@ namespace CSVToJSON.Services.CSVParser
             {
                 var currentChar = fileText[i];
                 var nextChar = fileText[i + 1 >= fileText.Length ? fileText.Length - 1 : i + 1];
+
                 if (!valueIsQuotation)
                 {
                     if (currentChar == separator)
@@ -54,7 +67,7 @@ namespace CSVToJSON.Services.CSVParser
                         valueIsQuotation = false;
                         continue;
                     }
-                    if (LINEJUMP_CHARS.Any(linejump => value.Contains(linejump)))
+                    if (matchUnquotedLinejumps.Match(value).Success)
                     {
                         values.Add(TryCastValue(cleanValue(value)));
                         value = string.Empty;
@@ -72,31 +85,48 @@ namespace CSVToJSON.Services.CSVParser
             return rows;
         }
 
+        /// <summary>
+        /// Checks the consistency of the parsed data by checking the number of columns of each rows. The reference count is the first column's.
+        /// </summary>
         private void validateParsedCsvFile(IEnumerable<IEnumerable<CSVBaseValue>> rows)
         {
             var referenceColNb = rows.ElementAt(0).Count();
             var errors = new List<string>();
             var rowCount = 0;
+
+            _logger.LogInformation($"Validating {rows.Count()} lines ...");
+
             foreach (var row in rows)
             {
                 if (row.Count() != referenceColNb)
                 {
-                    var errorMsg = $"Invalid number of values at line {rowCount} : {row.Count()} values found instead of {referenceColNb} (top line being the reference). The CSV file might be inconsistent in its format.";
+                    var errorMsg = $"Invalid number of values at line {rowCount + 1} : {row.Count()} values found instead of {referenceColNb} (top line being the reference). The CSV file might be inconsistent in its format.";
                     errors.Add(errorMsg);
-                    _logger.LogError(errorMsg);
                 }
                 rowCount++;
             }
 
-            if (errors.Any()) throw new CSVParserException(String.Join("\r\n", errors));
+            if (errors.Any())
+            {
+                _logger.LogWarning($"{errors.Count()} validation errors found !");
+                throw new CSVParserException(String.Join("\r\n\r\n", errors));
+            }
+
+            _logger.LogInformation($"CSV file is valid.");
         }
 
+        /// <summary>
+        /// Factory-like method that return the right derived class for a CSVBaseValue according to the parsing abilities of the raw value.
+        /// </summary>
         private CSVBaseValue TryCastValue(string value)
         {
             if (int.TryParse(value, out int castedValue)) return new CSVIntValue(castedValue);
             else return new CSVStringValue(value);
         }
 
+        /// <summary>
+        /// Removes unwanted linejumps chars and quotes from a raw value.
+        /// </summary>
         private string cleanValue(string value)
         {
             LINEJUMP_CHARS.ForEach(linejump => value = value.Replace(linejump, string.Empty));
