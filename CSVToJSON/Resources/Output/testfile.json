@@ -1,1 +1,1 @@
-[{"Year":1997,"Car":"Ford","Model":"E350","Description":"Super,luxurious truck"},{"Year":1997,"Car":"Ford","Model":"E350","Description":"Go getone nowthey are goingfast"},{"Year":1997,"Car":"Ford","Model":"E350","Description":"Super,\"luxurious\" truck"}]
+[["Year","Car","Model","Description"],[1997,"Ford","E350","Super,luxurious truck"],[1997,"Ford","E350","Go getone nowthey are goingfast"],[1997,"Ford","E350","Super,\"luxurious\" truck"]]
