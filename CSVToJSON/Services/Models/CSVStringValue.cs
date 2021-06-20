@@ -1,5 +1,4 @@
-﻿using System;
-namespace CSVToJSON.Services.Models
+﻿namespace CSVToJSON.Services.Models
 {
     public class CSVStringValue : CSVBaseValue
     {

@@ -2,7 +2,6 @@
 using CSVToJSON.Services.Interfaces;
 using CSVToJSON.Services.Models;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -28,8 +27,7 @@ namespace CSVToJSON.Services
         public IEnumerable<IEnumerable<CSVBaseValue>> ParseCsvFile(string filePath, char separator = SEPARATOR_CHAR)
         {
             var fileText = _fileUtils.ReadAllText(filePath);
-            var parsedFile = parseRowsFromFileText(fileText, separator);
-            return parsedFile;
+            return parseRowsFromFileText(fileText, separator);
         }
 
         private IEnumerable<IEnumerable<CSVBaseValue>> parseRowsFromFileText(string fileText, char separator)
@@ -73,17 +71,14 @@ namespace CSVToJSON.Services
 
         private CSVBaseValue TryCastValue(string value)
         {
-            if (int.TryParse(value, out int castedValue))
-                return new CSVIntValue(castedValue);
-
+            if (int.TryParse(value, out int castedValue)) return new CSVIntValue(castedValue);
             else return new CSVStringValue(value);
         }
 
         private string cleanValue(string value)
         {
             LINEJUMP_CHARS.ForEach(linejump => value = value.Replace(linejump, string.Empty));
-            value = matchUnnecessaryQuotes.Replace(value, string.Empty);
-            return value;
+            return matchUnnecessaryQuotes.Replace(value, string.Empty);
         }
     }
 }
